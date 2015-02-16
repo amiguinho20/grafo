@@ -1,0 +1,25 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"/>
+</head>
+<body>
+	<script type="text/javascript">
+		jQuery(document).ready(function($){
+		    var deviceAgent = navigator.userAgent.toLowerCase();
+		    var agentID = deviceAgent.match(/(iphone|ipod|ipad|android)/);
+		 
+		    if (agentID) 
+			{
+				//#{request.requestURL.substring(0, request.requestURL.length() - request.requestURI.length())}#{request.contextPath}/
+		         //alert('você está utilizando um celular: #{request.requestURL}   ||#{request.contextPath}');
+		    	window.location.href = "mobile.xhtml";
+		    } 
+		    else 
+			{
+				//alert('você está em um computador: #{request.requestURL}   ||#{request.contextPath}');
+		    	window.location.href = "classico.xhtml";
+			}
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+        <script type="text/javascript" src="./js/arborjs/arbor.js" ></script>
+        <script type="text/javascript" src="./js/arborjs/graphics.js" ></script>
+        <script type="text/javascript" src="./js/arborjs/renderer.js" ></script>
+    </head>
+    <body>
+      <h1>eba graphics new</h1>
+      <canvas id="viewport" width="800" height="600"></canvas>
+      <script type="text/javascript">
+			var sys = arbor.ParticleSystem(1000, 400,1);
+
+          	sys.parameters({gravity:true});
+          	sys.renderer = Renderer("#viewport") ;
+//          var animals = sys.addNode('Animals',{'color':'red','shape':'dot','label':'Animals'});
+
+//          var dog = sys.addNode('dog',{'color':'green','shape':'dot','label':'dog'});
+//          var cat = sys.addNode('cat',{'color':'blue','shape':'dot','label':'cat'});
+
+//          sys.addEdge(animals, dog);
+//          sys.addEdge(animals, cat);
+			
+			var grafo = {
+				nodes:{
+					sony:{'color':'red','shape':'dot','label':'Sony'},
+					ps4:{'color':'green','shape':'dot','label':'Playstation 4'},
+					acUnity:{'color':'blue','shape':'dot','label':'Assassins Creed Unity'},
+					microsoft:{'color':'red', 'shape':'dot', 'label':'Microsoft'},
+					xone:{'color': 'green', 'shape': 'dot', 'label': 'XBox One'},
+					pc:{'color': 'red', 'shape': 'dot', 'label': 'Personal Computer'},
+					empresa:{'color': 'yellow', 'shape': 'xxx', 'label': 'Empresa'},
+					plataforma: {'color': 'orange', 'shape': 'xxx', 'label': 'Plataforma'},
+					jogo: {'color': 'purple', 'shape': 'xxx', 'label': 'Jogo'}
+				},
+				edges:{
+					sony:{ ps4:{} },
+					ps4:{ acUnity:{} },
+					microsoft:{ xone:{} },
+					xone:{ acUnity:{} },
+					pc:{ acUnity:{} },
+					jogo: { acUnity:{} },
+					plataforma: { ps4:{}, xone:{}, pc: {} },
+					empresa: { sony:{}, microsoft:{} }
+				}
+			};
+				
+			sys.graft(grafo);
+
+      </script>
+    </body>
+</html>

@@ -1,0 +1,174 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<ui:composition template="template.xhtml">
+
+	<ui:define name="templateNav">
+		<h:panelGrid columns="3">
+		<h:form id="formDialogInclusao">
+       		<p:commandButton value="Incluir Vértice" type="button" onclick="PF('dlgIncluirVertice').show();" />
+       		<p:dialog header="Incluir Vértice" widgetVar="dlgIncluirVertice" modal="true" height="170">
+       			<h:panelGrid columns="1">
+					<!-- 
+		           		<f:passThroughAttribute name="placeholder" value="Nome do Vértice"/>
+		           		<:resetValues render="formDialogInclusao:nome formDialogExclusao:comboVertice" />
+		       		 -->
+					<p:inputText id="nome" value="#{grafoMB.vertice.nome}" />
+		       		<p:watermark value="Nome do Vértice" for="nome"/>
+		       		
+		       		<p:selectOneMenu id="comboCor" value="#{grafoMB.vertice.cor}" >
+						<f:selectItem itemLabel="Azul"     itemValue="blue" />
+						<f:selectItem itemLabel="Roxo"     itemValue="purple"/>
+						<f:selectItem itemLabel="Laranja"  itemValue="orange"/>
+						<f:selectItem itemLabel="Vermelho" itemValue="red"/>
+						<f:selectItem itemLabel="Preto"    itemValue="black"/>
+						<f:selectItem itemLabel="Rosa"     itemValue="pink"/>
+					</p:selectOneMenu>
+
+		       		<p:selectOneMenu id="comboForma" value="#{grafoMB.vertice.forma}" >
+						<f:selectItem itemLabel="Circulo"   itemValue="dot"/>
+						<f:selectItem itemLabel="Retângulo" itemValue="rectangle" />
+		       		</p:selectOneMenu>
+		       		
+		       		<p:commandButton action="#{grafoMB.incluirVertice}" value="Incluir" oncomplete="PF('dlgIncluirVertice').hide();" update="@form :formDialogExclusao :formDialogIncluirAresta :formCanvas" />
+	       		</h:panelGrid>
+			</p:dialog> 
+		</h:form>	
+
+
+		<h:form id="formDialogExclusao" >
+			<p:commandButton value="Excluir Vértice" type="button" onclick="PF('dlgExcluirVertice').show();" />
+       		<p:dialog header="Excluir Vértice" widgetVar="dlgExcluirVertice" modal="true" height="100">
+       			<h:panelGrid columns="1">
+					<p:selectOneMenu id="comboVertice" value="#{grafoMB.vertice}" converter="verticeConverter" styleClass="identComboVertice">
+						<f:selectItem itemLabel="Selecione" />
+						<f:selectItems value="#{grafoMB.vertices}" var="vertice" itemValue="#{vertice}" itemLabel="#{vertice.nome}" />
+					</p:selectOneMenu>
+ 		       		<p:commandButton action="#{grafoMB.excluirVertice}" value="Excluir"  oncomplete="PF('dlgExcluirVertice').hide();" update="@form :formDialogIncluirAresta :formCanvas" />
+	       		</h:panelGrid>
+			</p:dialog> 
+		</h:form>
+		
+		<h:form id="formDialogIncluirAresta">
+ 			<p:growl id="msgFormDialogIncluirAresta" showDetail="true"/>  
+			<p:commandButton value="Incluir Aresta" type="button" onclick="PF('dlgIncluirAresta').show();" />
+       		<p:dialog header="Incluir Aresta" widgetVar="dlgIncluirAresta" modal="true" height="100">
+       			<h:panelGrid columns="1">
+	       			<h:panelGrid columns="2" id="combosAresta">
+						<p:selectOneMenu id="comboIncluirArestaOrigem" value="#{grafoMB.aresta.origem}" styleClass="identComboIncluirArestaOrigem" converter="verticeConverter">
+							<f:selectItem itemLabel="Selecione a origem" itemValue="" />
+							<f:selectItems value="#{grafoMB.vertices}" var="origem" itemValue="#{origem}" itemLabel="#{origem.nome}" />
+							<f:ajax render="comboIncluirArestaDestino" event="change" listener="#{grafoMB.listarVerticesDestino}" />
+						</p:selectOneMenu>
+						<p:selectOneMenu id="comboIncluirArestaDestino" value="#{grafoMB.aresta.destino}" styleClass="identComboIncluirArestaDestino" converter="verticeConverter" disabled="#{empty grafoMB.aresta.origem.nome}" >
+							<f:selectItem itemLabel="Selecione o destino" itemValue="" />
+							<f:selectItems value="#{grafoMB.verticesDestino}" var="destino" itemValue="#{destino}" itemLabel="#{destino.nome}" />
+							
+						</p:selectOneMenu>
+					</h:panelGrid>
+ 		       		<p:commandButton action="#{grafoMB.incluirAresta}" value="Incluir" oncomplete="PF('dlgIncluirAresta').hide();" update="@form :formCanvas" />
+ 	       		</h:panelGrid>
+			</p:dialog>
+
+		</h:form>
+		 
+		</h:panelGrid>
+	</ui:define>
+	<ui:define name="templateSection">
+		<!--length
+		Esse script eh dependencia do Arborjs, mas quando o PrimeFaces esta em uso, ele nao funciona.
+		Alem disso, o PrimeFaces possui internamente ele, por isso que o Arborjs continua a funcionar.
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"/>
+		-->
+		<script type="text/javascript" src="./resources/js/arborjs/arbor.js" />
+        <script type="text/javascript" src="./resources/js/arborjs/graphics.js" />
+        <script type="text/javascript" src="./resources/js/arborjs/renderer.js" />
+		<h:outputScript library="js/arborjs" name="arbor.js" target="head"  rendered="false"/>
+		<h:outputScript library="js/arborjs" name="graphics.js" target="head" rendered="false" />
+		<h:outputScript library="js/arborjs" name="renderer.js" target="head" rendered="false"/>
+		
+		<h:form id="formCanvas" >
+			<h:panelGroup id="panelVertice" layout="block" >
+				<h:panelGrid columns="2">
+				    <h:outputText value="Vértices: #{fn:length(grafoMB.vertices)}" />
+					<ui:repeat var="vertice" value="#{grafoMB.vertices}" varStatus="status">	
+						<h:outputText value=" #{vertice.id}-#{vertice.nome}" />
+					</ui:repeat>
+					<h:outputText value="Arestas: #{fn:length(grafoMB.arestas)}" />
+					<ui:repeat var="aresta" value="#{grafoMB.arestas}" varStatus="status">	
+						<h:outputText value=" #{aresta.origem.nome}-#{aresta.destino.nome}" />
+					</ui:repeat>
+				</h:panelGrid>
+			</h:panelGroup>
+	
+			<canvas id="viewport" width="800" height="450" class="identViewport"></canvas>
+			<script type="text/javascript">
+				var sys = arbor.ParticleSystem(1000, 400,1);
+				<h:panelGroup layout="block" rendered="#{fn:length(grafoMB.vertices) == 1}">
+				sys = arbor.ParticleSystem(1, 400,1);
+				</h:panelGroup>
+	
+	          	sys.parameters({gravity:true});
+	          	sys.renderer = Renderer("#viewport") ;
+				
+				var grafo = {
+					nodes:{
+//						sony:{color:'red','shape':'dot','label':'Sony'},
+//						ps4:{'color':'green','shape':'dot','label':'Playstation 4'},
+//						acUnity:{'color':'blue','shape':'dot','label':'Assassins Creed Unity'},
+	
+						<h:panelGroup layout="block" rendered="#{fn:length(grafoMB.vertices) > 0}">
+							<ui:repeat var="vertice" value="#{grafoMB.vertices}" varStatus="status">	
+								<h:outputText value="," rendered="#{fn:length(grafoMB.vertices) > 1}"/>
+								<h:outputText value="#{vertice.nome}:{'color':'#{vertice.cor}','shape':'#{vertice.forma}','label':'#{vertice.nome}'}" />
+							</ui:repeat>
+						</h:panelGroup>
+	
+						 				
+//						microsoft:{'color':'red', 'shape':'dot', 'label':'Microsoft'},
+//						xone:{'color': 'green', 'shape': 'dot', 'label': 'XBox One'},
+//						pc:{'color': 'red', 'shape': 'dot', 'label': 'Personal Computer'},
+//						empresa:{'color': 'yellow', 'shape': 'xxx', 'label': 'Empresa'},
+//						plataforma: {'color': 'orange', 'shape': 'xxx', 'label': 'Plataforma'},
+//						A: {'color': 'black', 'shape': 'xxx', 'label': 'A'},
+//						B: {'color': 'black', 'shape': 'xxx', 'label': 'B'}
+					},
+					edges:{
+//						sony:{ ps4:{} },
+//						ps4:{ acUnity:{} },
+//						microsoft:{ xone:{} },
+
+						<h:panelGroup layout="block" rendered="#{not empty grafoMB.arestas}">
+							<ui:repeat var="aresta" value="#{grafoMB.arestas}" varStatus="status">	
+							<h:outputText value="," rendered="#{fn:length(grafoMB.arestas) > 1}"/>
+							<h:outputText value="#{aresta.origem.nome}:{ #{aresta.destino.nome}:{} }" />
+							</ui:repeat>
+						</h:panelGroup>
+
+						
+//						xone:{ acUnity:{} },
+//						pc:{ acUnity:{} },
+//						jogo: { acUnity:{} },
+//						plataforma: { ps4:{}, xone:{}, pc: {} },
+//						empresa: { sony:{}, microsoft:{} }
+//						A:{B:{}}
+					}
+				};
+					
+				sys.graft(grafo);
+	
+			</script>
+	
+		</h:form>
+	
+	
+	</ui:define>
+	
+
+
+</ui:composition>
+</html>
