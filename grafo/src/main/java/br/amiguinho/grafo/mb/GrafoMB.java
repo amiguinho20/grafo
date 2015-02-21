@@ -18,12 +18,12 @@ import br.amiguinho.grafo.persist.Persistencia;
 //testar essa tag do CDI 
 @Named
 @org.omnifaces.cdi.ViewScoped  
-public class GrafoMB implements Serializable{   
+public class GrafoMB implements Serializable{    
 	
 	@Inject   
 	private Persistencia persistencia;
 	 
-	private Vertice vertice; 
+	private Vertice vertice;          
 	private List<Vertice> vertices;  
 	private List<Vertice> verticesDestino;
 	
@@ -59,6 +59,17 @@ public class GrafoMB implements Serializable{
 		}  
 	}
 	   
+	public void alterarVertice()
+	{
+		Vertice antigo = vertice;
+		
+		Vertice novo = persistencia.alterar(antigo);
+		
+		System.out.println("Alteracao de " + antigo + " para " + novo);
+		
+		init(); 
+	}
+	
 	public void incluirVertice(){
 		
 		if (vertice.getCor().trim().isEmpty()){
@@ -78,14 +89,17 @@ public class GrafoMB implements Serializable{
       
 	public void incluirAresta()
 	{
-		if (aresta.getCor().trim().isEmpty())
+		if (aresta.getOrigem() != null && aresta.getDestino() != null)
 		{
-			aresta.setCor("cccccc");
+			if (aresta.getCor().trim().isEmpty())
+			{
+				aresta.setCor("cccccc");
+			}
+			
+			persistencia.incluirAresta(aresta);
+			System.out.println("Aresta: " + aresta + " incluida com sucesso.");
+			init();
 		}
-		
-		persistencia.incluirAresta(aresta);
-		System.out.println("Aresta: " + aresta + " incluida com sucesso.");
-		init();
 	}
 
 	public void excluirVertice()
@@ -106,16 +120,22 @@ public class GrafoMB implements Serializable{
 	}
 	 
 	public void excluirAresta()
-	{
+	{ 
 		System.out.println("excluir aresta: " + aresta);
 		if (aresta != null)
 		{
 			persistencia.excluirAresta(aresta);
 			
-			init();
-		}
+			init(); 
+		}   
 	}
 
+	public void limpar()
+	{ 
+		persistencia.limpar();   
+		init();
+		System.out.println("Limpou...");
+	} 
 		 
 
 	public Vertice getVertice() {
@@ -125,13 +145,13 @@ public class GrafoMB implements Serializable{
 	public void setVertice(Vertice vertice) {
 		this.vertice = vertice;
 	}
-
-
+  
+ 
 	public List<Vertice> getVertices() { 
 		return vertices;
 	}
  
-
+  
 	public void setVertices(List<Vertice> vertices) { 
 		this.vertices = vertices; 
 	}    

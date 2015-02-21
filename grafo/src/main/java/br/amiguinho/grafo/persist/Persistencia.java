@@ -1,9 +1,7 @@
 package br.amiguinho.grafo.persist;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -24,6 +22,11 @@ public class Persistencia {
 		 arestas = new ArrayList<>();
 	}
 	
+	public void limpar()
+	{
+		init();
+	}
+	
 	public Vertice incluir(Vertice vertice)
 	{
 		boolean incluiu = false;
@@ -38,6 +41,15 @@ public class Persistencia {
 			}
 		}
 		return vertice;
+	}
+	
+	public Vertice alterar(Vertice vertice)
+	{
+		Vertice verticePersistido = selecionar(vertice);
+		verticePersistido.setNome(vertice.getNome());
+		verticePersistido.setForma(vertice.getForma());
+		verticePersistido.setCor(vertice.getCor());
+		return verticePersistido;
 	}
 	
 	public void excluir(Vertice vertice)
